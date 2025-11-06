@@ -209,16 +209,31 @@ class ImageProcessorApp(QMainWindow):
 
 
     def apply_stylesheet(self):
-        # (Fungsi stylesheet tidak berubah dari v4.0)
+        # Updated stylesheet with complete dark mode support for Windows 10
         self.setStyleSheet("""
             QMainWindow { background-color: #2E2E2E; }
-            QWidget { color: #FFFFFF; font-family: 'Segoe UI', Arial, sans-serif; font-size: 14px; }
-            QLabel { font-size: 16px; }
+            QMainWindow::separator { background-color: #2E2E2E; }
+            QWidget { 
+                background-color: #2E2E2E;
+                color: #FFFFFF; 
+                font-family: 'Segoe UI', Arial, sans-serif; 
+                font-size: 14px; 
+            }
+            QLabel { 
+                font-size: 16px;
+                background: transparent;
+            }
             QLabel[setAlignment="132"] { color: #AAAAAA; font-size: 18px; font-style: italic; }
             h2 { font-size: 20px; font-weight: bold; color: #55AAFF;
                  border-bottom: 2px solid #444444; padding-bottom: 5px; }
-            QPushButton { background-color: #555555; color: #FFFFFF; border: none;
-                          padding: 12px 15px; border-radius: 5px; text-align: left; }
+            QPushButton { 
+                background-color: #555555; 
+                color: #FFFFFF; 
+                border: none;
+                padding: 12px 15px; 
+                border-radius: 5px; 
+                text-align: left; 
+            }
             QPushButton:hover { background-color: #666666; }
             QPushButton:pressed { background-color: #777777; }
             QPushButton:disabled { background-color: #444444; color: #888888; }
@@ -226,19 +241,91 @@ class ImageProcessorApp(QMainWindow):
             QPushButton#btn_apply_adjust:hover { background-color: #3AA83A; }
             QPushButton#btn_cancel_adjust { background-color: #B82C2C; text-align: center; }
             QPushButton#btn_cancel_adjust:hover { background-color: #D33636; }
-            QScrollArea { border: none; }
-            QScrollBar:vertical { background: #444444; width: 12px; margin: 0; }
-            QScrollBar::handle:vertical { background: #666666; min-height: 20px; border-radius: 6px; }
-            QSlider::groove:horizontal { border: 1px solid #444; background: #333; height: 8px; border-radius: 4px; }
-            QSlider::handle:horizontal { background: #55AAFF; border: 1px solid #55AAFF;
-                                         width: 18px; margin: -5px 0; border-radius: 9px; }
+            QScrollArea { 
+                border: none;
+                background-color: #2E2E2E;
+            }
+            QScrollArea > QWidget > QWidget { background-color: #2E2E2E; }
+            QScrollBar:vertical { 
+                background: #444444; 
+                width: 12px; 
+                margin: 0; 
+            }
+            QScrollBar::handle:vertical { 
+                background: #666666; 
+                min-height: 20px; 
+                border-radius: 6px; 
+            }
+            QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {
+                background: none;
+                border: none;
+            }
+            QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {
+                background: #2E2E2E;
+            }
+            QSlider::groove:horizontal { 
+                border: 1px solid #444; 
+                background: #333; 
+                height: 8px; 
+                border-radius: 4px; 
+            }
+            QSlider::handle:horizontal { 
+                background: #55AAFF; 
+                border: 1px solid #55AAFF;
+                width: 18px; 
+                margin: -5px 0; 
+                border-radius: 9px; 
+            }
             QSlider::sub-page:horizontal { background: #55AAFF; }
             QFrame[frameShape="4"] { border-top: 1px solid #444444; }
-            QCheckBox { spacing: 10px; padding: 5px 0; }
-            QCheckBox::indicator { width: 18px; height: 18px; }
-            QCheckBox::indicator:unchecked { border: 1px solid #888; background-color: #444; border-radius: 4px; }
-            QCheckBox::indicator:checked { background-color: #55AAFF; border: 1px solid #55AAFF; border-radius: 4px; }
+            QCheckBox { 
+                spacing: 10px; 
+                padding: 5px 0;
+                background: transparent;
+            }
+            QCheckBox::indicator { 
+                width: 18px; 
+                height: 18px; 
+            }
+            QCheckBox::indicator:unchecked { 
+                border: 1px solid #888; 
+                background-color: #444; 
+                border-radius: 4px; 
+            }
+            QCheckBox::indicator:checked { 
+                background-color: #55AAFF; 
+                border: 1px solid #55AAFF; 
+                border-radius: 4px; 
+            }
             QCheckBox:disabled { color: #888888; }
+            QFileDialog {
+                background-color: #2E2E2E;
+            }
+            QFileDialog QWidget {
+                background-color: #2E2E2E;
+                color: #FFFFFF;
+            }
+            QFileDialog QWidget::item:selected {
+                background-color: #55AAFF;
+            }
+            QFileDialog QWidget::item:hover {
+                background-color: #444444;
+            }
+            QHeaderView::section {
+                background-color: #444444;
+                color: #FFFFFF;
+                padding: 5px;
+            }
+            QTreeView, QListView {
+                background-color: #2E2E2E;
+                border: 1px solid #444444;
+            }
+            QDialog {
+                background-color: #2E2E2E;
+            }
+            QMessageBox {
+                background-color: #2E2E2E;
+            }
         """)
         self.btn_apply_adjust.setObjectName("btn_apply_adjust")
         self.btn_cancel_adjust.setObjectName("btn_cancel_adjust")
@@ -259,20 +346,33 @@ class ImageProcessorApp(QMainWindow):
 
     def pil_to_pixmap(self, pil_img):
         try:
+            # Handle different image modes
             if pil_img.mode == "RGBA":
                 data = pil_img.tobytes("raw", "RGBA")
-                qimage = QImage(data, pil_img.width, pil_img.height, QImage.Format_RGBA8888)
+                qimage = QImage(data, pil_img.width, pil_img.height, pil_img.width * 4, QImage.Format_RGBA8888)
             elif pil_img.mode == "L":
                 data = pil_img.tobytes("raw", "L")
-                qimage = QImage(data, pil_img.width, pil_img.height, QImage.Format_Grayscale8)
+                qimage = QImage(data, pil_img.width, pil_img.height, pil_img.width, QImage.Format_Grayscale8)
             else:
-                if pil_img.mode != "RGB":
-                    pil_img = pil_img.convert("RGB")
+                # Convert to RGB for all other modes
+                pil_img = pil_img.convert("RGB")
                 data = pil_img.tobytes("raw", "RGB")
-                qimage = QImage(data, pil_img.width, pil_img.height, QImage.Format_RGB888)
-            return QPixmap.fromImage(qimage)
+                qimage = QImage(data, pil_img.width, pil_img.height, pil_img.width * 3, QImage.Format_RGB888)
+            
+            # Check if QImage is valid
+            if qimage.isNull():
+                raise Exception("Failed to create valid QImage")
+                
+            # Convert to QPixmap
+            pixmap = QPixmap.fromImage(qimage)
+            if pixmap.isNull():
+                raise Exception("Failed to create valid QPixmap from QImage")
+                
+            return pixmap
+            
         except Exception as e:
-            print(f"Error konversi PIL ke QPixmap: {e}")
+            print(f"Error converting PIL to QPixmap: {e}")
+            print(f"Image mode: {pil_img.mode}, Size: {pil_img.size}")
             return QPixmap()
 
     # --- Fungsi Inti Aplikasi (Tidak Berubah) ---
@@ -293,13 +393,21 @@ class ImageProcessorApp(QMainWindow):
         fname, _ = QFileDialog.getOpenFileName(self, 'Buka Gambar', '.', 'File Gambar (*.jpg *.jpeg *.png *.bmp)')
         if fname:
             try:
-                self.active_image = Image.open(fname)
+                # Open the image and convert to RGB to ensure compatibility
+                self.active_image = Image.open(fname).convert('RGB')
                 self.original_image = self.active_image.copy()
+                # Get image size for debugging
+                width, height = self.active_image.size
+                print(f"Image loaded successfully: {width}x{height} pixels")
                 self.reset_filters_and_commit()
                 self.update_preview()
                 self.set_all_controls_enabled(True)
             except Exception as e:
+                print(f"Error loading image: {e}")
                 self.image_label.setText(f"Gagal membuka gambar: {e}")
+                self.active_image = None
+                self.original_image = None
+                self.set_all_controls_enabled(False)
 
     def save_image(self):
         if self.preview_image:
@@ -319,12 +427,26 @@ class ImageProcessorApp(QMainWindow):
 
     def display_image(self, img_to_display):
         if img_to_display:
-            self.current_pixmap = self.pil_to_pixmap(img_to_display)
-            self.update_image_display()
-            self.update_histogram(img_to_display) # DIPERBARUI
+            try:
+                # Ensure image is in RGB mode before converting
+                if img_to_display.mode != 'RGB':
+                    img_to_display = img_to_display.convert('RGB')
+                
+                # Create QPixmap and update display
+                self.current_pixmap = self.pil_to_pixmap(img_to_display)
+                if self.current_pixmap and not self.current_pixmap.isNull():
+                    self.update_image_display()
+                    self.update_histogram(img_to_display)
+                else:
+                    raise Exception("Failed to create valid QPixmap")
+            except Exception as e:
+                print(f"Error displaying image: {e}")
+                self.image_label.setText(f"Gagal menampilkan gambar: {e}")
+                self.current_pixmap = None
         else:
             self.image_label.setText("Tidak ada gambar.")
             self.histogram_label.clear()
+            self.current_pixmap = None
             
     def update_image_display(self):
         if self.current_pixmap:
